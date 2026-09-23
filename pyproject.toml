@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "setool"
+version = "0.1.0"
+description = "A Python/PyTorch Architecture Explorer"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    { name = "Jules", email = "jules@example.com" }
+]
+dependencies = [
+    "pydantic>=2.0",
+    "typer>=0.9.0",
+    "networkx>=3.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pyright>=1.1",
+    "black>=23.0",
+    "isort>=5.0",
+    "mypy>=1.0"
+]
+
+[project.scripts]
+setool = "setool.cli.app:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/setool"]

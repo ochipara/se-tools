@@ -1,0 +1,266 @@
+{
+  "$defs": {
+    "Edge": {
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/EdgeKind"
+        },
+        "provenance": {
+          "items": {
+            "$ref": "#/$defs/Provenance"
+          },
+          "title": "Provenance",
+          "type": "array"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Properties"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "kind"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "EdgeKind": {
+      "enum": [
+        "CONTAINS",
+        "IMPORTS",
+        "INHERITS",
+        "CALLS",
+        "INSTANTIATES",
+        "PASSES_VALUE",
+        "RETURNS",
+        "READS",
+        "WRITES",
+        "USES_API",
+        "DEPENDS_ON",
+        "PROVIDED_BY",
+        "DECLARES_DEPENDENCY"
+      ],
+      "title": "EdgeKind",
+      "type": "string"
+    },
+    "Location": {
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "line_start": {
+          "title": "Line Start",
+          "type": "integer"
+        },
+        "line_end": {
+          "title": "Line End",
+          "type": "integer"
+        },
+        "col_start": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Col Start"
+        },
+        "col_end": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Col End"
+        }
+      },
+      "required": [
+        "file",
+        "line_start",
+        "line_end"
+      ],
+      "title": "Location",
+      "type": "object"
+    },
+    "Node": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/NodeKind"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Location"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Properties"
+        },
+        "python_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PythonType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "name"
+      ],
+      "title": "Node",
+      "type": "object"
+    },
+    "NodeKind": {
+      "enum": [
+        "package",
+        "module",
+        "class",
+        "function",
+        "method",
+        "pytorch_module",
+        "call_site",
+        "value",
+        "external_api",
+        "distribution"
+      ],
+      "title": "NodeKind",
+      "type": "string"
+    },
+    "Provenance": {
+      "enum": [
+        "source_ast",
+        "declared_annotation",
+        "pyright_inference",
+        "import_resolution",
+        "receiver_type_resolution",
+        "inheritance_resolution",
+        "pytorch_semantics",
+        "pyproject_declaration",
+        "requirements_declaration",
+        "installed_distribution_metadata",
+        "entry_point_reachability",
+        "runtime_observation"
+      ],
+      "title": "Provenance",
+      "type": "string"
+    },
+    "PythonType": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "fully_qualified_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fully Qualified Name"
+        },
+        "kind": {
+          "default": "Any",
+          "title": "Kind",
+          "type": "string"
+        },
+        "generic_arguments": {
+          "items": {
+            "$ref": "#/$defs/PythonType"
+          },
+          "title": "Generic Arguments",
+          "type": "array"
+        },
+        "union_members": {
+          "items": {
+            "$ref": "#/$defs/PythonType"
+          },
+          "title": "Union Members",
+          "type": "array"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provenance"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PythonType",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "nodes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Node"
+      },
+      "title": "Nodes",
+      "type": "object"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/Edge"
+      },
+      "title": "Edges",
+      "type": "array"
+    }
+  },
+  "title": "ProgramGraph",
+  "type": "object"
+}

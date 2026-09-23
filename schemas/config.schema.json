@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "EntryPoint": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "target"
+      ],
+      "title": "EntryPoint",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "project_root": {
+      "default": ".",
+      "title": "Project Root",
+      "type": "string"
+    },
+    "entry_points": {
+      "items": {
+        "$ref": "#/$defs/EntryPoint"
+      },
+      "title": "Entry Points",
+      "type": "array"
+    },
+    "include": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Include",
+      "type": "array"
+    },
+    "exclude": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Exclude",
+      "type": "array"
+    },
+    "max_call_depth": {
+      "default": 15,
+      "title": "Max Call Depth",
+      "type": "integer"
+    }
+  },
+  "title": "SetoolConfig",
+  "type": "object"
+}

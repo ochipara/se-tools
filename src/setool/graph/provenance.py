@@ -1,0 +1,15 @@
+from enum import Enum
+
+class Provenance(str, Enum):
+    SOURCE_AST = "source_ast"
+    DECLARED_ANNOTATION = "declared_annotation"
+    PYRIGHT_INFERENCE = "pyright_inference"
+    IMPORT_RESOLUTION = "import_resolution"
+    RECEIVER_TYPE_RESOLUTION = "receiver_type_resolution"
+    INHERITANCE_RESOLUTION = "inheritance_resolution"
+    PYTORCH_SEMANTICS = "pytorch_semantics"
+    PYPROJECT_DECLARATION = "pyproject_declaration"
+    REQUIREMENTS_DECLARATION = "requirements_declaration"
+    INSTALLED_DISTRIBUTION_METADATA = "installed_distribution_metadata"
+    ENTRY_POINT_REACHABILITY = "entry_point_reachability"
+    RUNTIME_OBSERVATION = "runtime_observation"
