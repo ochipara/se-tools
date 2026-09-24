@@ -45,17 +45,20 @@ def traverse_from_entry_points(graph: ProgramGraph, entry_points: List[str], max
         for edge in graph.edges:
             if edge.source == current_id and edge.kind in valid_edges:
                 reachable_edges.append(edge)
-                if edge.target not in visited:
+                # Some edges point to external things that might not be formally in graph.nodes if we didn't add them.
+                if edge.target in graph.nodes and edge.target not in visited:
                     queue.append((edge.target, depth + 1))
 
             elif edge.target == current_id and edge.kind in {EdgeKind.CONTAINS, EdgeKind.IMPORTS}:
                 reachable_edges.append(edge)
-                if edge.source not in visited:
+                if edge.source in graph.nodes and edge.source not in visited:
                     queue.append((edge.source, depth + 1))
 
     sub_graph = ProgramGraph()
     for nid in reachable_nodes:
-        sub_graph.nodes[nid] = graph.nodes[nid]
+        if nid in graph.nodes:
+            sub_graph.nodes[nid] = graph.nodes[nid]
+
     sub_graph.edges = list({(e.source, e.target, e.kind): e for e in reachable_edges}.values())
 
     for e in sub_graph.edges:

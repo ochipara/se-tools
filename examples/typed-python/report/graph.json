@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": {
+    "main": {
+      "id": "main",
+      "kind": "module",
+      "name": "main",
+      "location": {
+        "file": "/app/examples/typed-python/main.py",
+        "line_start": 1,
+        "line_end": 3,
+        "col_start": null,
+        "col_end": null
+      },
+      "properties": {
+        "local_types": {
+          "main": {},
+          "main::A.__init__": {
+            "self": "A",
+            "self.a": "int"
+          },
+          "main.foo": {
+            "a": "A"
+          }
+        }
+      },
+      "python_type": null
+    },
+    "main::A": {
+      "id": "main::A",
+      "kind": "class",
+      "name": "A",
+      "location": {
+        "file": "/app/examples/typed-python/main.py",
+        "line_start": 1,
+        "line_end": 2,
+        "col_start": 0,
+        "col_end": 39
+      },
+      "properties": {
+        "bases": []
+      },
+      "python_type": null
+    },
+    "main::A.__init__": {
+      "id": "main::A.__init__",
+      "kind": "method",
+      "name": "__init__",
+      "location": {
+        "file": "/app/examples/typed-python/main.py",
+        "line_start": 2,
+        "line_end": 2,
+        "col_start": 4,
+        "col_end": 39
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "main.foo": {
+      "id": "main.foo",
+      "kind": "function",
+      "name": "foo",
+      "location": {
+        "file": "/app/examples/typed-python/main.py",
+        "line_start": 3,
+        "line_end": 3,
+        "col_start": 0,
+        "col_end": 19
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "main.foo::param_a": {
+      "id": "main.foo::param_a",
+      "kind": "value",
+      "name": "a",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "A",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "declared_annotation"
+      }
+    }
+  },
+  "edges": [
+    {
+      "source": "main",
+      "target": "main::A",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main::A",
+      "target": "main::A.__init__",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main",
+      "target": "main.foo",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main.foo",
+      "target": "main.foo::param_a",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    }
+  ]
+}

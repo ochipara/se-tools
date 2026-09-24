@@ -1,0 +1,743 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": {
+    "train::Encoder.forward::param_x": {
+      "id": "train::Encoder.forward::param_x",
+      "kind": "value",
+      "name": "x",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "declared_annotation"
+      }
+    },
+    "train.train_step::call_5": {
+      "id": "train.train_step::call_5",
+      "kind": "call_site",
+      "name": "call_5",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 18,
+        "line_end": 18,
+        "col_start": 13,
+        "col_end": 28
+      },
+      "properties": {
+        "source_expression": "model(features)",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train.main::val_data": {
+      "id": "train.main::val_data",
+      "kind": "value",
+      "name": "data",
+      "location": null,
+      "properties": {},
+      "python_type": null
+    },
+    "train::Encoder": {
+      "id": "train::Encoder",
+      "kind": "pytorch_module",
+      "name": "Encoder",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 8,
+        "line_end": 15,
+        "col_start": 0,
+        "col_end": 16
+      },
+      "properties": {
+        "is_pytorch_module": true,
+        "bases": [
+          "nn.Module"
+        ]
+      },
+      "python_type": null
+    },
+    "train.main::call_9": {
+      "id": "train.main::call_9",
+      "kind": "call_site",
+      "name": "call_9",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 25,
+        "line_end": 25,
+        "col_start": 4,
+        "col_end": 27
+      },
+      "properties": {
+        "source_expression": "train_step(model, data)",
+        "resolution_status": "resolved",
+        "possible_targets": [
+          "train.train_step"
+        ]
+      },
+      "python_type": null
+    },
+    "train::Encoder.__init__::call_3": {
+      "id": "train::Encoder.__init__::call_3",
+      "kind": "call_site",
+      "name": "call_3",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 11,
+        "line_end": 11,
+        "col_start": 19,
+        "col_end": 30
+      },
+      "properties": {
+        "source_expression": "SubModule()",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train::Encoder.__init__": {
+      "id": "train::Encoder.__init__",
+      "kind": "method",
+      "name": "__init__",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 9,
+        "line_end": 11,
+        "col_start": 4,
+        "col_end": 30
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "train.main::val_model": {
+      "id": "train.main::val_model",
+      "kind": "value",
+      "name": "model",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "Encoder",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": null
+      }
+    },
+    "train::Encoder.forward::call_4": {
+      "id": "train::Encoder.forward::call_4",
+      "kind": "call_site",
+      "name": "call_4",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 14,
+        "line_end": 14,
+        "col_start": 12,
+        "col_end": 23
+      },
+      "properties": {
+        "source_expression": "self.sub(x)",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train.main::call_7": {
+      "id": "train.main::call_7",
+      "kind": "call_site",
+      "name": "call_7",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 23,
+        "line_end": 23,
+        "col_start": 12,
+        "col_end": 21
+      },
+      "properties": {
+        "source_expression": "Encoder()",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train.main": {
+      "id": "train.main",
+      "kind": "function",
+      "name": "main",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 22,
+        "line_end": 25,
+        "col_start": 0,
+        "col_end": 27
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "train.main::call_8": {
+      "id": "train.main::call_8",
+      "kind": "call_site",
+      "name": "call_8",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 24,
+        "line_end": 24,
+        "col_start": 11,
+        "col_end": 30
+      },
+      "properties": {
+        "source_expression": "torch.randn(10, 10)",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train::SubModule.forward::param_x": {
+      "id": "train::SubModule.forward::param_x",
+      "kind": "value",
+      "name": "x",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "declared_annotation"
+      }
+    },
+    "train::Encoder.forward": {
+      "id": "train::Encoder.forward",
+      "kind": "method",
+      "name": "forward",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 13,
+        "line_end": 15,
+        "col_start": 4,
+        "col_end": 16
+      },
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "return_annotation"
+      }
+    },
+    "train::Encoder.forward::val_y": {
+      "id": "train::Encoder.forward::val_y",
+      "kind": "value",
+      "name": "y",
+      "location": null,
+      "properties": {},
+      "python_type": null
+    },
+    "train::Encoder.__init__::call_2": {
+      "id": "train::Encoder.__init__::call_2",
+      "kind": "call_site",
+      "name": "call_2",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 10,
+        "line_end": 10,
+        "col_start": 8,
+        "col_end": 15
+      },
+      "properties": {
+        "source_expression": "super()",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train.train_step::call_6": {
+      "id": "train.train_step::call_6",
+      "kind": "call_site",
+      "name": "call_6",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 19,
+        "line_end": 19,
+        "col_start": 11,
+        "col_end": 23
+      },
+      "properties": {
+        "source_expression": "logits.sum()",
+        "resolution_status": "unresolved",
+        "possible_targets": []
+      },
+      "python_type": null
+    },
+    "train::SubModule.forward": {
+      "id": "train::SubModule.forward",
+      "kind": "method",
+      "name": "forward",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 5,
+        "line_end": 6,
+        "col_start": 4,
+        "col_end": 20
+      },
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "return_annotation"
+      }
+    },
+    "train": {
+      "id": "train",
+      "kind": "module",
+      "name": "train",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 1,
+        "line_end": 25,
+        "col_start": null,
+        "col_end": null
+      },
+      "properties": {
+        "local_types": {
+          "train": {},
+          "train::SubModule.forward": {
+            "self": "SubModule",
+            "x": "torch.Tensor"
+          },
+          "train::Encoder.__init__": {
+            "self": "Encoder",
+            "self.sub": "SubModule"
+          },
+          "train::Encoder.forward": {
+            "self": "Encoder",
+            "x": "torch.Tensor"
+          },
+          "train.train_step": {
+            "model": "Encoder",
+            "features": "torch.Tensor",
+            "logits": "torch.Tensor"
+          },
+          "train.main": {
+            "model": "Encoder"
+          }
+        }
+      },
+      "python_type": null
+    },
+    "train::SubModule": {
+      "id": "train::SubModule",
+      "kind": "pytorch_module",
+      "name": "SubModule",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 4,
+        "line_end": 6,
+        "col_start": 0,
+        "col_end": 20
+      },
+      "properties": {
+        "is_pytorch_module": true,
+        "bases": [
+          "nn.Module"
+        ]
+      },
+      "python_type": null
+    },
+    "train.train_step": {
+      "id": "train.train_step",
+      "kind": "function",
+      "name": "train_step",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 17,
+        "line_end": 20,
+        "col_start": 0,
+        "col_end": 15
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "train.train_step::val_logits": {
+      "id": "train.train_step::val_logits",
+      "kind": "value",
+      "name": "logits",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": null
+      }
+    },
+    "train.train_step::val_loss": {
+      "id": "train.train_step::val_loss",
+      "kind": "value",
+      "name": "loss",
+      "location": null,
+      "properties": {},
+      "python_type": null
+    },
+    "train::Encoder.__init__::call_1": {
+      "id": "train::Encoder.__init__::call_1",
+      "kind": "call_site",
+      "name": "call_1",
+      "location": {
+        "file": "/app/examples/pytorch-training/train.py",
+        "line_start": 10,
+        "line_end": 10,
+        "col_start": 8,
+        "col_end": 26
+      },
+      "properties": {
+        "source_expression": "super().__init__()",
+        "resolution_status": "possible",
+        "possible_targets": [
+          "train::Encoder.__init__"
+        ]
+      },
+      "python_type": null
+    },
+    "dist::torch": {
+      "id": "dist::torch",
+      "kind": "distribution",
+      "name": "torch",
+      "location": null,
+      "properties": {
+        "declared": false,
+        "observed": true
+      },
+      "python_type": null
+    },
+    "train.train_step::param_model": {
+      "id": "train.train_step::param_model",
+      "kind": "value",
+      "name": "model",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "Encoder",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "declared_annotation"
+      }
+    },
+    "train.train_step::param_features": {
+      "id": "train.train_step::param_features",
+      "kind": "value",
+      "name": "features",
+      "location": null,
+      "properties": {},
+      "python_type": {
+        "name": "torch.Tensor",
+        "fully_qualified_name": null,
+        "kind": "Any",
+        "generic_arguments": [],
+        "union_members": [],
+        "provenance": "declared_annotation"
+      }
+    }
+  },
+  "edges": [
+    {
+      "source": "train",
+      "target": "train.main",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.main::call_7",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.main::call_8",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.main::call_9",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.main::val_model",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.main::val_data",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.main",
+      "target": "train.train_step",
+      "kind": "CALLS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {
+        "call_site_id": "train.main::call_9",
+        "status": "resolved"
+      }
+    },
+    {
+      "source": "train",
+      "target": "torch",
+      "kind": "IMPORTS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train",
+      "target": "train::SubModule",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train",
+      "target": "train::Encoder",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train",
+      "target": "train.train_step",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train",
+      "target": "dist::torch",
+      "kind": "DEPENDS_ON",
+      "provenance": [
+        "import_resolution"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::param_model",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::param_features",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::call_5",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::call_6",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::val_logits",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::val_loss",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train.train_step",
+      "target": "train.train_step::val_loss",
+      "kind": "RETURNS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::SubModule",
+      "target": "train::SubModule.forward",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder",
+      "target": "train::Encoder.__init__",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder",
+      "target": "train::Encoder.forward",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::SubModule.forward",
+      "target": "train::SubModule.forward::param_x",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.__init__",
+      "target": "train::Encoder.__init__::call_1",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.__init__",
+      "target": "train::Encoder.__init__::call_2",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.__init__",
+      "target": "train::Encoder.__init__::call_3",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.__init__",
+      "target": "train::Encoder.__init__",
+      "kind": "CALLS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {
+        "call_site_id": "train::Encoder.__init__::call_1",
+        "status": "possible"
+      }
+    },
+    {
+      "source": "train::Encoder.forward",
+      "target": "train::Encoder.forward::param_x",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.forward",
+      "target": "train::Encoder.forward::call_4",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.forward",
+      "target": "train::Encoder.forward::val_y",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "train::Encoder.forward",
+      "target": "train::Encoder.forward::val_y",
+      "kind": "RETURNS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    }
+  ]
+}

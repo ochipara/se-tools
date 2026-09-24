@@ -1,0 +1,10 @@
+{
+  "project_root": ".",
+  "entry_points": [
+    {
+      "name": "training",
+      "target": "train.py::main"
+    }
+  ],
+  "include": ["*.py"]
+}

@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": {
+    "main": {
+      "id": "main",
+      "kind": "module",
+      "name": "main",
+      "location": {
+        "file": "/app/examples/pytorch-inference/main.py",
+        "line_start": 1,
+        "line_end": 4,
+        "col_start": null,
+        "col_end": null
+      },
+      "properties": {
+        "local_types": {
+          "main": {},
+          "main::InferModel.forward": {
+            "self": "InferModel"
+          }
+        }
+      },
+      "python_type": null
+    },
+    "main::InferModel": {
+      "id": "main::InferModel",
+      "kind": "pytorch_module",
+      "name": "InferModel",
+      "location": {
+        "file": "/app/examples/pytorch-inference/main.py",
+        "line_start": 3,
+        "line_end": 4,
+        "col_start": 0,
+        "col_end": 34
+      },
+      "properties": {
+        "is_pytorch_module": true,
+        "bases": [
+          "nn.Module"
+        ]
+      },
+      "python_type": null
+    },
+    "main::InferModel.forward": {
+      "id": "main::InferModel.forward",
+      "kind": "method",
+      "name": "forward",
+      "location": {
+        "file": "/app/examples/pytorch-inference/main.py",
+        "line_start": 4,
+        "line_end": 4,
+        "col_start": 4,
+        "col_end": 34
+      },
+      "properties": {},
+      "python_type": null
+    },
+    "main::InferModel.forward::val_x": {
+      "id": "main::InferModel.forward::val_x",
+      "kind": "value",
+      "name": "x",
+      "location": null,
+      "properties": {},
+      "python_type": null
+    },
+    "dist::torch": {
+      "id": "dist::torch",
+      "kind": "distribution",
+      "name": "torch",
+      "location": null,
+      "properties": {
+        "declared": false,
+        "observed": true
+      },
+      "python_type": null
+    }
+  },
+  "edges": [
+    {
+      "source": "main",
+      "target": "torch",
+      "kind": "IMPORTS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main",
+      "target": "torch",
+      "kind": "IMPORTS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main",
+      "target": "main::InferModel",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main::InferModel",
+      "target": "main::InferModel.forward",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main::InferModel.forward",
+      "target": "main::InferModel.forward::val_x",
+      "kind": "CONTAINS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main::InferModel.forward",
+      "target": "main::InferModel.forward::val_x",
+      "kind": "RETURNS",
+      "provenance": [
+        "source_ast"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main",
+      "target": "dist::torch",
+      "kind": "DEPENDS_ON",
+      "provenance": [
+        "import_resolution"
+      ],
+      "properties": {}
+    },
+    {
+      "source": "main",
+      "target": "dist::torch",
+      "kind": "DEPENDS_ON",
+      "provenance": [
+        "import_resolution"
+      ],
+      "properties": {}
+    }
+  ]
+}
