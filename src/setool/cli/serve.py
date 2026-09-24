@@ -9,6 +9,11 @@ def serve(
     report_dir: Path = typer.Argument(..., help="Path to report directory"),
     port: int = typer.Option(8000, "--port", help="Port to serve on"),
     host: str = typer.Option("127.0.0.1", "--host", help="Host to bind to"),
+    sync_assets: bool = typer.Option(
+        True,
+        "--sync-assets/--no-sync-assets",
+        help="Automatically sync latest UI assets (HTML/JS/CSS) to the report directory",
+    ),
 ):
     """Serve the interactive report locally."""
     import shutil
@@ -21,8 +26,8 @@ def serve(
         raise typer.Exit(code=1)
 
     ui_source = Path(__file__).resolve().parent.parent / "report" / "assets"
-    if not (report_dir / "index.html").exists() and ui_source.exists():
-        print(f"Populating UI assets into {report_dir}...")
+    if ui_source.exists() and (sync_assets or not (report_dir / "index.html").exists()):
+        print(f"Syncing UI assets into {report_dir}...")
         shutil.copytree(ui_source, report_dir, dirs_exist_ok=True)
 
     server = FastAPI(title="setool Architecture Explorer")
