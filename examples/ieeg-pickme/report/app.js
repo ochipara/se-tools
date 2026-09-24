@@ -36,14 +36,10 @@ let rawDependenciesData = null;
 let activeNodeFilters = new Set();
 let activeEdgeFilters = new Set();
 let selectedElement = null;
-let activeAnalysisPreset = 'none';
-let activeAnalysisRegex = '';
-
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initPresets();
-  initAnalysis();
   initEventListeners();
   loadData();
 });
@@ -82,9 +78,9 @@ async function loadData() {
 }
 
 function initPresets() {
-  document.querySelectorAll('.preset-pills:not(#analysis-pills) .pill').forEach(btn => {
+  document.querySelectorAll('.preset-pills .pill').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset-pills:not(#analysis-pills) .pill').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.preset-pills .pill').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       setPreset(btn.dataset.preset);
       applyFilters();
@@ -112,37 +108,6 @@ function setPreset(preset) {
     activeEdgeFilters = new Set(allEdgeKinds);
   }
 
-  updateFilterCheckboxes();
-}
-
-
-function initAnalysis() {
-  document.querySelectorAll('#analysis-pills .pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#analysis-pills .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeAnalysisPreset = btn.dataset.analysis;
-      setAnalysisPreset(activeAnalysisPreset);
-    });
-  });
-
-  document.getElementById('btn-apply-analysis').addEventListener('click', () => {
-    activeAnalysisRegex = document.getElementById('regex-filter-input').value;
-    applyFilters();
-  });
-}
-
-function setAnalysisPreset(preset) {
-  if (preset === 'call_graph') {
-    activeNodeFilters = new Set(['function', 'method']);
-    activeEdgeFilters = new Set(['CALLS']);
-  } else if (preset === 'inheritance') {
-    activeNodeFilters = new Set(['class']);
-    activeEdgeFilters = new Set(['INHERITS']);
-  } else if (preset === 'dependency') {
-    activeNodeFilters = new Set(['package', 'module', 'distribution']);
-    activeEdgeFilters = new Set(['DEPENDS_ON']);
-  }
   updateFilterCheckboxes();
 }
 
@@ -441,103 +406,23 @@ function prepareElements() {
     return { nodes, edges };
   }
 
-  // 1. Initial pass: Apply node filters and optionally the regex filter
-  let candidateNodes = new Set();
-  let regex = null;
-
-  if (activeAnalysisPreset !== 'none' && activeAnalysisRegex.trim() !== '') {
-    try {
-      regex = new RegExp(activeAnalysisRegex.trim());
-    } catch (e) {
-      console.warn("Invalid regex", e);
-    }
-  }
-
-  const matchesRegex = (n) => {
-    if (!regex) return true;
-    return regex.test(n.id) || (n.name && regex.test(n.name));
-  };
-
-  const validNodes = new Set();
+  // Filter nodes
   Object.values(rawGraphData.nodes).forEach(n => {
-    if (activeNodeFilters.has(n.kind)) {
-      validNodes.add(n.id);
-      if (matchesRegex(n)) {
-        candidateNodes.add(n.id);
+    if (!activeNodeFilters.has(n.kind)) return;
+
+    const cfg = NODE_CONFIG[n.kind] || { shape: 'round-rectangle', color: '#94a3b8', size: 30 };
+    nodes.push({
+      data: {
+        id: n.id,
+        label: n.name || n.id.split('.').pop() || n.id,
+        kind: n.kind,
+        color: cfg.color,
+        shape: cfg.shape,
+        size: cfg.size,
+        raw: n
       }
-    }
-  });
-
-  // 2. Reachability expansion if regex is active
-  if (regex && candidateNodes.size > 0 && candidateNodes.size < validNodes.size) {
-    // Build adjacency list for current edge filters
-    const adjForward = new Map();
-    const adjBackward = new Map();
-
-    (rawGraphData.edges || []).forEach(e => {
-      if (!activeEdgeFilters.has(e.kind)) return;
-      if (!validNodes.has(e.source) || !validNodes.has(e.target)) return;
-
-      if (!adjForward.has(e.source)) adjForward.set(e.source, []);
-      adjForward.get(e.source).push(e.target);
-
-      if (!adjBackward.has(e.target)) adjBackward.set(e.target, []);
-      adjBackward.get(e.target).push(e.source);
     });
-
-    const reachableNodes = new Set(candidateNodes);
-
-    // BFS Forward (descendants)
-    let queue = Array.from(candidateNodes);
-    while (queue.length > 0) {
-      const current = queue.shift();
-      const neighbors = adjForward.get(current) || [];
-      for (const neighbor of neighbors) {
-        if (!reachableNodes.has(neighbor)) {
-          reachableNodes.add(neighbor);
-          queue.push(neighbor);
-        }
-      }
-    }
-
-    // BFS Backward (ancestors)
-    queue = Array.from(candidateNodes);
-    while (queue.length > 0) {
-      const current = queue.shift();
-      const neighbors = adjBackward.get(current) || [];
-      for (const neighbor of neighbors) {
-        if (!reachableNodes.has(neighbor)) {
-          reachableNodes.add(neighbor);
-          queue.push(neighbor);
-        }
-      }
-    }
-
-    candidateNodes = reachableNodes;
-  } else if (!regex) {
-    candidateNodes = validNodes;
-  } else if (regex && candidateNodes.size === 0) {
-    // Regex provided but matched nothing
-    candidateNodes = new Set();
-  }
-
-  // 3. Build final Cytoscape elements
-  Object.values(rawGraphData.nodes).forEach(n => {
-    if (candidateNodes.has(n.id)) {
-      const cfg = NODE_CONFIG[n.kind] || { shape: 'round-rectangle', color: '#94a3b8', size: 30 };
-      nodes.push({
-        data: {
-          id: n.id,
-          label: n.name || n.id.split('.').pop() || n.id,
-          kind: n.kind,
-          color: cfg.color,
-          shape: cfg.shape,
-          size: cfg.size,
-          raw: n
-        }
-      });
-      addedNodes.add(n.id);
-    }
+    addedNodes.add(n.id);
   });
 
   // Filter edges (only between currently visible nodes)

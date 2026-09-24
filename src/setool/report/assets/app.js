@@ -36,14 +36,12 @@ let rawDependenciesData = null;
 let activeNodeFilters = new Set();
 let activeEdgeFilters = new Set();
 let selectedElement = null;
-let activeAnalysisPreset = 'none';
-let activeAnalysisRegex = '';
+let activeRegex = '';
 
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-  initPresets();
-  initAnalysis();
+  initAnalysisUI();
   initEventListeners();
   loadData();
 });
@@ -68,7 +66,7 @@ async function loadData() {
     }
 
     // Default to 'arch' preset (excludes low-level values/call sites for snappiness)
-    setPreset('arch');
+    setPreset('call_graph');
     initFilters();
     initCycles();
     initCytoscape();
@@ -81,67 +79,23 @@ async function loadData() {
   }
 }
 
-function initPresets() {
-  document.querySelectorAll('.preset-pills:not(#analysis-pills) .pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset-pills:not(#analysis-pills) .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      setPreset(btn.dataset.preset);
-      applyFilters();
-    });
-  });
-}
-
-function setPreset(preset) {
-  const allNodeKinds = Object.keys(NODE_CONFIG);
-  const allEdgeKinds = Object.keys(EDGE_CONFIG);
-
-  if (preset === 'arch') {
-    // High-level architecture: packages, modules, classes, functions, distributions
-    activeNodeFilters = new Set(['package', 'module', 'distribution', 'class', 'pytorch_module', 'function', 'method', 'external_api']);
-    activeEdgeFilters = new Set(['CALLS', 'CONTAINS', 'DEPENDS_ON', 'IMPORTS', 'INHERITS', 'INSTANTIATES', 'USES_API']);
-  } else if (preset === 'modules') {
-    activeNodeFilters = new Set(['package', 'module', 'distribution']);
-    activeEdgeFilters = new Set(['DEPENDS_ON', 'IMPORTS', 'CONTAINS']);
-  } else if (preset === 'pytorch') {
-    activeNodeFilters = new Set(['pytorch_module', 'class', 'method', 'function']);
-    activeEdgeFilters = new Set(['CALLS', 'INHERITS', 'CONTAINS']);
-  } else {
-    // All
-    activeNodeFilters = new Set(allNodeKinds);
-    activeEdgeFilters = new Set(allEdgeKinds);
-  }
-
-  updateFilterCheckboxes();
-}
-
-
-function initAnalysis() {
-  document.querySelectorAll('#analysis-pills .pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#analysis-pills .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeAnalysisPreset = btn.dataset.analysis;
-      setAnalysisPreset(activeAnalysisPreset);
-    });
-  });
-
+function initAnalysisUI() {
   document.getElementById('btn-apply-analysis').addEventListener('click', () => {
-    activeAnalysisRegex = document.getElementById('regex-filter-input').value;
+    activeRegex = document.getElementById('regex-filter-input').value;
+    applyFilters();
+  });
+
+  document.getElementById('btn-clear-analysis').addEventListener('click', () => {
+    document.getElementById('regex-filter-input').value = '';
+    activeRegex = '';
     applyFilters();
   });
 }
 
-function setAnalysisPreset(preset) {
+function setPreset(preset) {
   if (preset === 'call_graph') {
     activeNodeFilters = new Set(['function', 'method']);
     activeEdgeFilters = new Set(['CALLS']);
-  } else if (preset === 'inheritance') {
-    activeNodeFilters = new Set(['class']);
-    activeEdgeFilters = new Set(['INHERITS']);
-  } else if (preset === 'dependency') {
-    activeNodeFilters = new Set(['package', 'module', 'distribution']);
-    activeEdgeFilters = new Set(['DEPENDS_ON']);
   }
   updateFilterCheckboxes();
 }
@@ -445,9 +399,9 @@ function prepareElements() {
   let candidateNodes = new Set();
   let regex = null;
 
-  if (activeAnalysisPreset !== 'none' && activeAnalysisRegex.trim() !== '') {
+  if (activeRegex.trim() !== '') {
     try {
-      regex = new RegExp(activeAnalysisRegex.trim());
+      regex = new RegExp(activeRegex.trim());
     } catch (e) {
       console.warn("Invalid regex", e);
     }
@@ -517,7 +471,6 @@ function prepareElements() {
   } else if (!regex) {
     candidateNodes = validNodes;
   } else if (regex && candidateNodes.size === 0) {
-    // Regex provided but matched nothing
     candidateNodes = new Set();
   }
 
@@ -845,7 +798,7 @@ function initEventListeners() {
   });
 
   document.getElementById('btn-reset-filters').addEventListener('click', () => {
-    setPreset('arch');
+    setPreset('call_graph');
     applyFilters();
   });
 
