@@ -24,4 +24,7 @@ wheels/
 .coverage
 htmlcov/
 node_modules/
+ui/node_modules/
 .DS_Store
+.*
+!.gitignore
