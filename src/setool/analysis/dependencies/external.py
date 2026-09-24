@@ -1,15 +1,33 @@
-import toml
 import os
+import sys
 from typing import Dict, List
 from ...graph.graph import ProgramGraph
 from ...graph.nodes import Node, NodeKind
 from ...graph.edges import Edge, EdgeKind
 from ...graph.provenance import Provenance
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    try:
+        import tomli as tomllib  # type: ignore
+    except ModuleNotFoundError:
+        import toml as tomllib  # type: ignore
+
 def parse_pyproject(filepath: str) -> List[str]:
     try:
-        with open(filepath, "r") as f:
-            data = toml.load(f)
+        if hasattr(tomllib, "load"):
+            try:
+                with open(filepath, "rb") as f:
+                    data = tomllib.load(f)
+            except TypeError:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    data = tomllib.load(f)
+        elif hasattr(tomllib, "loads"):
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = tomllib.loads(f.read())
+        else:
+            return []
         deps = data.get("project", {}).get("dependencies", [])
         return deps
     except Exception:

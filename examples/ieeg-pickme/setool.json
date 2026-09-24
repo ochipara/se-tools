@@ -1,0 +1,22 @@
+{
+    "project_root": "/Users/ochipara/Working/ieeg-pickme",
+    "entry_points": [
+        {
+            "name": "training",
+            "target": "src/ieeg_pickme/training/loop.py::fit"
+        },
+        {
+            "name": "provenance",
+            "target": "src/ieeg_pickme/provenance.py::main"
+        }
+    ],
+    "include": [
+        "src/**"
+    ],
+    "exclude": [
+        "tests/**",
+        ".venv/**",
+        "**/__pycache__/**"
+    ],
+    "max_call_depth": 15
+}

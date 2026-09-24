@@ -9,6 +9,7 @@ def traverse_from_entry_points(graph: ProgramGraph, entry_points: List[str], max
 
     start_nodes = []
     for ep in entry_points:
+        matched = False
         ep_parts = ep.split("::")
         if len(ep_parts) == 2:
             mod_path = ep_parts[0]
@@ -17,17 +18,32 @@ def traverse_from_entry_points(graph: ProgramGraph, entry_points: List[str], max
             mod_id = mod_path.replace("/", ".")
             symbol_name = ep_parts[1]
             exact_id = f"{mod_id}.{symbol_name}"
-
             method_id = f"{mod_id}::{symbol_name}"
 
             if exact_id in graph.nodes:
                 start_nodes.append(exact_id)
+                matched = True
             elif method_id in graph.nodes:
                 start_nodes.append(method_id)
+                matched = True
+            else:
+                # Suffix and fuzzy match if module path had different prefix
+                for nid in graph.nodes:
+                    if (nid.endswith(f".{symbol_name}") or nid.endswith(f"::{symbol_name}")):
+                        # Check if mod_id is part of nid or vice versa
+                        norm_mod = mod_id.lstrip(".")
+                        if norm_mod in nid or any(part in nid for part in norm_mod.split(".") if len(part) > 2):
+                            start_nodes.append(nid)
+                            matched = True
+                            break
         else:
             for nid, n in graph.nodes.items():
-                if n.name == ep:
+                if n.name == ep or nid == ep:
                     start_nodes.append(nid)
+                    matched = True
+
+        if not matched:
+            print(f"Warning: Entry point target '{ep}' not found in graph.")
 
     queue = [(nid, 0) for nid in start_nodes]
     visited = set()
