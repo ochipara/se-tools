@@ -28,3 +28,8 @@ ui/node_modules/
 .DS_Store
 .*
 !.gitignore
+
+# Generated report UI assets
+examples/**/report/*.html
+examples/**/report/*.js
+examples/**/report/*.css
