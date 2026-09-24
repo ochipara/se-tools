@@ -1,3 +1,33 @@
 {
-  "cycles": []
+  "cycles": [
+    [
+      "src.ieeg_pickme.features.dataset",
+      "src.ieeg_pickme.config.schema",
+      "src.ieeg_pickme.models.classifier",
+      "src.ieeg_pickme.training.analytical",
+      "src.ieeg_pickme.training.cv.optimizer",
+      "src.ieeg_pickme.models.eegnet",
+      "src.ieeg_pickme.models.forward_pipeline",
+      "src.ieeg_pickme.models",
+      "src.ieeg_pickme.models.pipeline",
+      "src.ieeg_pickme.models.analytical",
+      "src.ieeg_pickme.models.trf_gd",
+      "src.ieeg_pickme.models.registry",
+      "src.ieeg_pickme.models.pretraining",
+      "src.ieeg_pickme.models.layers",
+      "src.ieeg_pickme.training.search_space",
+      "src.ieeg_pickme.training.losses",
+      "src.ieeg_pickme.training.forward_encoding",
+      "src.ieeg_pickme.models.base"
+    ],
+    [
+      "src.ieeg_pickme.training.excel_exporter",
+      "src.ieeg_pickme.training.cv.evaluation",
+      "src.ieeg_pickme.training.cv",
+      "src.ieeg_pickme.training.cv.objective",
+      "src.ieeg_pickme.training.cv.nested_cv",
+      "src.ieeg_pickme.training.cv.results",
+      "src.ieeg_pickme.training.unified_evaluator"
+    ]
+  ]
 }

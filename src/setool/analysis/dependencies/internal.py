@@ -2,6 +2,7 @@ from ...graph.graph import ProgramGraph
 from ...graph.nodes import NodeKind, Node
 from ...graph.edges import Edge, EdgeKind
 from ...graph.provenance import Provenance
+from ...graph.lookup import find_matching_module, get_enclosing_module_id
 
 def aggregate_internal_dependencies(graph: ProgramGraph):
     # Track module to package relationships
@@ -16,10 +17,9 @@ def aggregate_internal_dependencies(graph: ProgramGraph):
     internal_imports = []
     for edge in graph.edges:
         if edge.kind == EdgeKind.IMPORTS:
-            source_mod = edge.source
-            target_mod = edge.target
-            # Is target_mod an internal module?
-            if target_mod in graph.nodes and graph.nodes[target_mod].kind == NodeKind.MODULE:
+            source_mod = get_enclosing_module_id(graph, edge.source) or edge.source
+            target_mod = find_matching_module(graph, edge.target)
+            if target_mod and target_mod in graph.nodes and graph.nodes[target_mod].kind == NodeKind.MODULE:
                 internal_imports.append((source_mod, target_mod))
 
     existing_deps = set()

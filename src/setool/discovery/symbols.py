@@ -80,24 +80,60 @@ class SymbolVisitor(ast.NodeVisitor):
         self.generic_visit(node)
         self.current_scope.pop()
 
+    def _resolve_relative_module(self, node: ast.ImportFrom) -> Optional[str]:
+        if not node.level or node.level == 0:
+            return node.module
+
+        module_parts = self.module_id.split(".")
+        if self.filepath.endswith("__init__.py"):
+            pkg_parts = module_parts
+        else:
+            pkg_parts = module_parts[:-1]
+
+        cut = node.level - 1
+        if cut > len(pkg_parts):
+            base_parts = []
+        elif cut > 0:
+            base_parts = pkg_parts[:-cut]
+        else:
+            base_parts = pkg_parts
+
+        if node.module:
+            if base_parts:
+                return ".".join(base_parts) + "." + node.module
+            return node.module
+        else:
+            return ".".join(base_parts) if base_parts else None
+
     def visit_Import(self, node: ast.Import):
         for alias in node.names:
             target_mod = alias.name
+            props = {}
+            if alias.asname:
+                props["alias"] = alias.asname
             self.graph.edges.append(Edge(
                 source=self.current_scope[-1],
                 target=target_mod,
                 kind=EdgeKind.IMPORTS,
-                provenance=[Provenance.SOURCE_AST]
+                provenance=[Provenance.SOURCE_AST],
+                properties=props
             ))
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
-        if node.module:
+        resolved_module = self._resolve_relative_module(node)
+        if resolved_module:
+            imported_names = [alias.name for alias in node.names]
+            aliases = {alias.asname: alias.name for alias in node.names if alias.asname}
+            props = {"imported_names": imported_names}
+            if aliases:
+                props["aliases"] = aliases
             self.graph.edges.append(Edge(
                 source=self.current_scope[-1],
-                target=node.module,
+                target=resolved_module,
                 kind=EdgeKind.IMPORTS,
-                provenance=[Provenance.SOURCE_AST]
+                provenance=[Provenance.SOURCE_AST],
+                properties=props
             ))
         self.generic_visit(node)
 

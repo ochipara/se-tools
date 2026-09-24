@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>setool | Architecture Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Cytoscape & Extensions -->
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">setool</span>
+          <span class="brand-badge">Architecture Explorer</span>
+        </div>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="metrics-bar" id="metrics-bar">
+        <div class="metric-item" title="Total Nodes in Graph">
+          <span class="metric-label">Nodes</span>
+          <span class="metric-val" id="metric-nodes">-</span>
+        </div>
+        <div class="metric-item" title="Total Edges in Graph">
+          <span class="metric-label">Edges</span>
+          <span class="metric-val" id="metric-edges">-</span>
+        </div>
+        <div class="metric-item" title="Visible on Canvas">
+          <span class="metric-label">Visible</span>
+          <span class="metric-val highlight" id="metric-visible">-</span>
+        </div>
+        <div class="metric-item" id="metric-cycles-container" title="Dependency Cycles Detected">
+          <span class="metric-label">Cycles</span>
+          <span class="metric-val warning" id="metric-cycles">0</span>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search symbols, modules... (Press '/' to focus)" autocomplete="off">
+        <button id="search-clear" class="btn-icon" style="display:none;">&times;</button>
+        <div id="search-dropdown" class="search-dropdown"></div>
+      </div>
+
+      <!-- Layout & View Presets -->
+      <div class="controls-group">
+        <label for="layout-select" class="sr-only">Layout</label>
+        <select id="layout-select" class="select-input">
+          <option value="concentric" selected>Concentric (Architecture)</option>
+          <option value="cose">Force-Directed (CoSE)</option>
+          <option value="breadthfirst">Breadthfirst (Tree)</option>
+          <option value="dagre">Dagre (Layered DAG)</option>
+          <option value="circle">Circular</option>
+          <option value="grid">Grid</option>
+        </select>
+
+        <div class="btn-group">
+          <button id="btn-fit" class="btn btn-icon" title="Fit to Screen (F)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+          <button id="btn-zoom-in" class="btn btn-icon" title="Zoom In (+)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button id="btn-zoom-out" class="btn btn-icon" title="Zoom Out (-)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button id="btn-re-layout" class="btn btn-secondary" title="Re-run Layout">
+            Layout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-body">
+      <!-- Left Filter & Legend Sidebar -->
+      <aside class="sidebar" id="filter-sidebar">
+        <div class="sidebar-header">
+          <h3>Filters &amp; Legend</h3>
+          <button id="btn-reset-filters" class="btn-text">Reset</button>
+        </div>
+
+        <!-- View Preset Buttons -->
+        <div class="preset-pills">
+          <button class="pill active" data-preset="arch">Architecture</button>
+          <button class="pill" data-preset="modules">Modules</button>
+          <button class="pill" data-preset="pytorch">PyTorch</button>
+          <button class="pill" data-preset="all">All Details</button>
+        </div>
+
+        <!-- Node Types Filter Section -->
+        <div class="filter-section">
+          <div class="section-title">Node Types</div>
+          <div class="filter-list" id="node-filters">
+            <!-- Dynamically populated / styled -->
+          </div>
+        </div>
+
+        <!-- Edge Types Filter Section -->
+        <div class="filter-section">
+          <div class="section-title">Edge Types</div>
+          <div class="filter-list" id="edge-filters">
+            <!-- Dynamically populated / styled -->
+          </div>
+        </div>
+
+        <!-- Cycles Section -->
+        <div class="filter-section" id="cycles-section" style="display:none;">
+          <div class="section-title warning-title">
+            <span>Dependency Cycles</span>
+            <span class="badge badge-warning" id="cycles-count">0</span>
+          </div>
+          <div class="cycles-list" id="cycles-list"></div>
+        </div>
+      </aside>
+
+      <!-- Center Graph Canvas -->
+      <section class="canvas-wrapper">
+        <div id="cy"></div>
+        <div id="loading-overlay" class="loading-overlay">
+          <div class="spinner"></div>
+          <p id="loading-text">Loading Program Graph...</p>
+        </div>
+        <div class="canvas-hint" id="canvas-hint">
+          <span>Click any node or edge to inspect details. Drag canvas to pan. Scroll to zoom.</span>
+        </div>
+      </section>
+
+      <!-- Right Inspector Panel -->
+      <aside class="inspector-panel" id="inspector-panel">
+        <div class="inspector-header">
+          <h3 id="inspector-title">Inspector</h3>
+          <button id="btn-close-inspector" class="btn-icon">&times;</button>
+        </div>
+
+        <div class="inspector-content" id="inspector-content">
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p>Select any node or edge on the canvas to inspect its metadata, location, types, and connections.</p>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

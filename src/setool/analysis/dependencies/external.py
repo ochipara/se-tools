@@ -33,6 +33,8 @@ def parse_pyproject(filepath: str) -> List[str]:
     except Exception:
         return []
 
+from ...graph.lookup import find_matching_module
+
 def extract_external_dependencies(graph: ProgramGraph, project_root: str):
     # Try parsing pyproject.toml
     pyproject_path = os.path.join(project_root, "pyproject.toml")
@@ -56,25 +58,34 @@ def extract_external_dependencies(graph: ProgramGraph, project_root: str):
     for edge in graph.edges:
         if edge.kind == EdgeKind.IMPORTS:
             target_mod = edge.target
-            # If it's not an internal module, it's external
-            if target_mod not in graph.nodes or graph.nodes[target_mod].kind != NodeKind.MODULE:
-                dist_name = target_mod.split(".")[0]
-                dist_id = f"dist::{dist_name}"
+            # If it's an internal module or package, it's not external
+            if find_matching_module(graph, target_mod):
+                continue
+            is_internal_pkg = False
+            for nid, n in graph.nodes.items():
+                if n.kind == NodeKind.PACKAGE and (nid == target_mod or nid.endswith("." + target_mod)):
+                    is_internal_pkg = True
+                    break
+            if is_internal_pkg:
+                continue
 
-                if dist_id not in graph.nodes:
-                    graph.nodes[dist_id] = Node(
-                        id=dist_id,
-                        kind=NodeKind.DISTRIBUTION,
-                        name=dist_name,
-                        properties={"declared": False, "observed": True}
-                    )
-                else:
-                    graph.nodes[dist_id].properties["observed"] = True
+            dist_name = target_mod.split(".")[0]
+            dist_id = f"dist::{dist_name}"
 
-                # Link the module that imported it to the distribution
-                graph.edges.append(Edge(
-                    source=edge.source,
-                    target=dist_id,
-                    kind=EdgeKind.DEPENDS_ON,
-                    provenance=[Provenance.IMPORT_RESOLUTION]
-                ))
+            if dist_id not in graph.nodes:
+                graph.nodes[dist_id] = Node(
+                    id=dist_id,
+                    kind=NodeKind.DISTRIBUTION,
+                    name=dist_name,
+                    properties={"declared": False, "observed": True}
+                )
+            else:
+                graph.nodes[dist_id].properties["observed"] = True
+
+            # Link the module that imported it to the distribution
+            graph.edges.append(Edge(
+                source=edge.source,
+                target=dist_id,
+                kind=EdgeKind.DEPENDS_ON,
+                provenance=[Provenance.IMPORT_RESOLUTION]
+            ))

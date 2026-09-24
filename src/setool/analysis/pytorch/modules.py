@@ -26,7 +26,7 @@ class PyTorchVisitor(ast.NodeVisitor):
         # Look for self.submodule = SubModule() in __init__
         if self.current_scope[-1].endswith(".__init__"):
             if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name):
-                class_id = self.current_scope[-1].split(".")[0]
+                class_id = self.current_scope[-1].rsplit(".__init__", 1)[0]
                 target_type_name = node.value.func.id
 
                 # Verify if target_type is a known nn.Module in graph
