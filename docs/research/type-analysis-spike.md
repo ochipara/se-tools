@@ -8,10 +8,8 @@ We implemented an experimental JSON-RPC client (`scripts/pyright_lsp_spike.py`) 
 
 ### Capabilities observed:
 The LSP client issues `textDocument/hover` requests for 0-indexed positions.
-- **Type Extraction**: For variables defined via class declarations (e.g. `batch`), the LSP hover provides a text block indicating `(module) torch`. Wait, the Pyright LSP hover for `batch` (the variable inside `train_step`) returned `(variable) features: Tensor`. For `optimizer.step`, it returned `(function) backward: Any`. It appears we need exact column indices to get accurate data. When indices were aligned:
-  - `model(x)` returned `(variable) features: Tensor`.
-  - `logits` returned `(variable) x: Tensor`.
-  - `optimizer.zero_grad` gave a full docstring block and signature `def zero_grad(set_to_none: bool = True) -> None`.
+- **Type Extraction**: When correctly aligned by column index, Pyright LSP hover provides excellent contextual type information formatted as Markdown text blocks. For example, hovering over the method name `zero_grad` gives the full docstring and signature.
+- **Limitations**: The hover text is highly sensitive to exact source-position offsets. Minor mismatches in character indexing often result in `No hover info` or returning the type of a neighboring token. For example, during testing, hovering the `(` in `model(x)` incorrectly returned the type of `features: Tensor` from a nearby token.
 
 **Pros**:
 - Very powerful type extraction and docstring extraction.
@@ -20,7 +18,7 @@ The LSP client issues `textDocument/hover` requests for 0-indexed positions.
 **Cons**:
 - The API is text-based (Markdown strings like `(variable) x: Tensor`), meaning we have to write a custom regex/string parser to extract the actual fully qualified type names from the hover string.
 - Requires orchestrating an asynchronous LSP process, sending `didOpen`, `initialized`, and maintaining a stateful connection for every file.
-- Cannot easily query "what is the fully qualified target of this call?" programmatically without string parsing the hover markdown.
+- We should not make the correctness of the core Program Graph depend on parsing hover text.
 
 ## 2. Pyright Internals / Programmatic Integration
 
@@ -65,15 +63,15 @@ We attempted to use `mypy` programmatically via `mypy.build.build`.
 | `batch.features` | `torch.Tensor` | `(variable) features: Tensor` | `torch._tensor.Tensor` |
 | `x` | `torch.Tensor` | `(variable) x: Tensor` | `torch._tensor.Tensor` |
 | `model` | `Encoder` | `(parameter) model: Encoder` | `Encoder` |
-| `model(x)` | `torch.Tensor` | *Inconsistent / Error* | `Encoder` (misses `__call__`) |
+| `model(x)` | `torch.Tensor` | *Inconclusive / Position-Sensitive* | `Encoder` (misses `__call__`) |
 | `logits` | `torch.Tensor` | `(variable) logits: Tensor` | `Unknown` |
 | `logits.sum()` | `torch.Tensor` | `(variable) loss: Tensor` | `Unknown` |
 | `loss` | `torch.Tensor` | `(variable) loss: Tensor` | `Unknown` |
 | `optimizer` | `torch.optim.Optimizer` | `(parameter) optimizer: Optimizer` | `Optimizer` |
-| `optimizer.zero_grad` | `resolved method` | *Full Signature & Docstring* | `typing.Callable` |
-| `optimizer.step` | `resolved method` | *Full Signature & Docstring* | `torch.optim.optimizer.step` |
+| `optimizer.zero_grad` | `resolved method/symbol` | *Full Signature & Docstring* | `typing.Callable` |
+| `optimizer.step` | `resolved method/symbol` | *Full Signature & Docstring* | `torch.optim.optimizer.step` |
 
-*(Note: Pyright LSP hover strings are approximate representations since LSP requires exact column placement and returns Markdown text rather than typed AST nodes).*
+*(Note: Pyright LSP hover strings are approximate representations since LSP requires exact column placement and returns Markdown text rather than typed AST nodes. Mismatches during testing often returned types of neighboring symbols.)*
 
 ## Capabilities Distinctions
 
@@ -81,17 +79,24 @@ We attempted to use `mypy` programmatically via `mypy.build.build`.
 - Pyright LSP provides excellent type extraction but outputs raw text.
 - Jedi provides good type extraction as typed Python objects, but fails on complex PyTorch semantics (like `nn.Module.__call__`).
 
-**B. Symbol Resolution (`optimizer.step -> torch.optim.Optimizer.step`)**:
-- Pyright LSP provides hover signatures.
-- Jedi provides exact module and function names.
+**B. Symbol Resolution vs Callable Type**:
+- *Type of Callable*: `typing.Callable[[...], Tensor]`.
+- *Definition/Identity of Callable*: `torch.optim.Optimizer.step`.
+- Pyright LSP provides hover signatures (callable type).
+- Jedi provides exact module and function names (symbol definition/identity).
 
 **C. Call Resolution (`optimizer.step() -> torch.optim.Optimizer.step(...)`)**:
 - Neither natively outputs a clean "Call Graph edge" from a query. Jedi provides the target definition which is exactly what we need for resolving the call.
 
 ## Final Recommendation
 
-Based on the spike, building a full Language Server client for Pyright and parsing Markdown strings to extract type definitions is fragile and complex. However, Pyright's semantic accuracy for PyTorch is unmatched.
+The spike demonstrates that Pyright provides excellent semantic information, but the available integration surface (`textDocument/hover`) is primarily an editor/presentation API. It requires exact source-position queries and returns formatted Markdown/text rather than a stable structured semantic representation. We should not make the correctness of the core Program Graph depend on parsing hover text.
 
-To satisfy the core requirement of inferring types robustly:
-1. **Primary Recommendation:** We will implement an LSP client integration with `pyright-langserver`. Despite the complexity of orchestrating an async process and parsing hover strings, it is the only viable path to accurately process PyTorch's complex generics and dynamic module invocations without building our own type engine. We will build a small regex/parsing layer over Pyright's hover responses to extract fully qualified types.
-2. **Alternative Consideration:** If Pyright LSP parsing proves too brittle during Stage 4 implementation, we will fall back to using `jedi`, which provides a much cleaner Python API but suffers accuracy drops on PyTorch-specific constructs.
+For v1, we will adopt the following architecture:
+
+1. **Python AST is the Primary Representation:** The standard Python `ast` module will remain the authoritative source for code structure, annotations, imports, classes, functions, assignments, calls, and basic data-flow.
+2. **Bounded Type Propagation Engine:** We will implement an explicit, bounded semantic propagation engine within `setool`. This engine will propagate types through assignments (`y = x`), parameter/return annotations, constructor calls (`Foo()`), and straightforward attribute lookups. Unsupported semantics will remain `UNKNOWN`.
+3. **PyTorch Semantic Rules:** We will embed PyTorch-aware rules. For instance, when `setool` encounters an invocation of an `nn.Module` subclass (`model(x)`), it will explicitly route the call semantics to `Encoder.forward` rather than relying on a generic type analyzer to understand `__call__` magic.
+4. **Pluggable Semantic Providers:** The architecture will use an internal `SemanticProvider` Protocol. Our AST engine will be the baseline.
+5. **Jedi as Optional Fallback:** Jedi will be treated as an optional assistant for definition lookup and imported-symbol resolution, not as the primary engine.
+6. **Pyright Enrichment:** Pyright will be treated as optional, future enrichment. We will not implement a production Pyright LSP client in Stage 4. If added later, its inferences will be explicitly marked with `PYRIGHT_INFERENCE` provenance.
