@@ -36,10 +36,13 @@ let rawDependenciesData = null;
 let activeNodeFilters = new Set();
 let activeEdgeFilters = new Set();
 let selectedElement = null;
+let activeRegex = '';
+let activeDirection = 'both';
+
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-  initPresets();
+  initAnalysisUI();
   initEventListeners();
   loadData();
 });
@@ -64,7 +67,7 @@ async function loadData() {
     }
 
     // Default to 'arch' preset (excludes low-level values/call sites for snappiness)
-    setPreset('arch');
+    setPreset('call_graph');
     initFilters();
     initCycles();
     initCytoscape();
@@ -77,37 +80,28 @@ async function loadData() {
   }
 }
 
-function initPresets() {
-  document.querySelectorAll('.preset-pills .pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset-pills .pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      setPreset(btn.dataset.preset);
-      applyFilters();
-    });
+function initAnalysisUI() {
+  document.getElementById('btn-apply-analysis').addEventListener('click', () => {
+    activeRegex = document.getElementById('regex-filter-input').value;
+    const dirSelect = document.getElementById('regex-direction-select');
+    if (dirSelect) {
+      activeDirection = dirSelect.value;
+    }
+    applyFilters();
+  });
+
+  document.getElementById('btn-clear-analysis').addEventListener('click', () => {
+    document.getElementById('regex-filter-input').value = '';
+    activeRegex = '';
+    applyFilters();
   });
 }
 
 function setPreset(preset) {
-  const allNodeKinds = Object.keys(NODE_CONFIG);
-  const allEdgeKinds = Object.keys(EDGE_CONFIG);
-
-  if (preset === 'arch') {
-    // High-level architecture: packages, modules, classes, functions, distributions
-    activeNodeFilters = new Set(['package', 'module', 'distribution', 'class', 'pytorch_module', 'function', 'method', 'external_api']);
-    activeEdgeFilters = new Set(['CALLS', 'CONTAINS', 'DEPENDS_ON', 'IMPORTS', 'INHERITS', 'INSTANTIATES', 'USES_API']);
-  } else if (preset === 'modules') {
-    activeNodeFilters = new Set(['package', 'module', 'distribution']);
-    activeEdgeFilters = new Set(['DEPENDS_ON', 'IMPORTS', 'CONTAINS']);
-  } else if (preset === 'pytorch') {
-    activeNodeFilters = new Set(['pytorch_module', 'class', 'method', 'function']);
-    activeEdgeFilters = new Set(['CALLS', 'INHERITS', 'CONTAINS']);
-  } else {
-    // All
-    activeNodeFilters = new Set(allNodeKinds);
-    activeEdgeFilters = new Set(allEdgeKinds);
+  if (preset === 'call_graph') {
+    activeNodeFilters = new Set(['function', 'method']);
+    activeEdgeFilters = new Set(['CALLS']);
   }
-
   updateFilterCheckboxes();
 }
 
@@ -406,23 +400,110 @@ function prepareElements() {
     return { nodes, edges };
   }
 
-  // Filter nodes
-  Object.values(rawGraphData.nodes).forEach(n => {
-    if (!activeNodeFilters.has(n.kind)) return;
+  // 1. Initial pass: Apply node filters and optionally the regex filter
+  let candidateNodes = new Set();
+  let regex = null;
 
-    const cfg = NODE_CONFIG[n.kind] || { shape: 'round-rectangle', color: '#94a3b8', size: 30 };
-    nodes.push({
-      data: {
-        id: n.id,
-        label: n.name || n.id.split('.').pop() || n.id,
-        kind: n.kind,
-        color: cfg.color,
-        shape: cfg.shape,
-        size: cfg.size,
-        raw: n
+  if (activeRegex.trim() !== '') {
+    try {
+      regex = new RegExp(activeRegex.trim());
+    } catch (e) {
+      console.warn("Invalid regex", e);
+    }
+  }
+
+  const matchesRegex = (n) => {
+    if (!regex) return true;
+    return regex.test(n.id) || (n.name && regex.test(n.name));
+  };
+
+  const validNodes = new Set();
+  Object.values(rawGraphData.nodes).forEach(n => {
+    if (activeNodeFilters.has(n.kind)) {
+      validNodes.add(n.id);
+      if (matchesRegex(n)) {
+        candidateNodes.add(n.id);
       }
+    }
+  });
+
+  // 2. Reachability expansion if regex is active
+  if (regex && candidateNodes.size > 0 && candidateNodes.size < validNodes.size) {
+    // Build adjacency list for current edge filters
+    const adjForward = new Map();
+    const adjBackward = new Map();
+
+    (rawGraphData.edges || []).forEach(e => {
+      if (!activeEdgeFilters.has(e.kind)) return;
+      if (!validNodes.has(e.source) || !validNodes.has(e.target)) return;
+
+      if (!adjForward.has(e.source)) adjForward.set(e.source, []);
+      adjForward.get(e.source).push(e.target);
+
+      if (!adjBackward.has(e.target)) adjBackward.set(e.target, []);
+      adjBackward.get(e.target).push(e.source);
     });
-    addedNodes.add(n.id);
+
+    const reachableNodes = new Set(candidateNodes);
+
+    if (activeDirection === 'forward' || activeDirection === 'both') {
+      // BFS Forward (descendants)
+      let queue = Array.from(candidateNodes);
+      let visitedForward = new Set(candidateNodes);
+      while (queue.length > 0) {
+        const current = queue.shift();
+        const neighbors = adjForward.get(current) || [];
+        for (const neighbor of neighbors) {
+          if (!visitedForward.has(neighbor)) {
+            visitedForward.add(neighbor);
+            reachableNodes.add(neighbor);
+            queue.push(neighbor);
+          }
+        }
+      }
+    }
+
+    if (activeDirection === 'backward' || activeDirection === 'both') {
+      // BFS Backward (ancestors)
+      let queue = Array.from(candidateNodes);
+      let visitedBackward = new Set(candidateNodes);
+      while (queue.length > 0) {
+        const current = queue.shift();
+        const neighbors = adjBackward.get(current) || [];
+        for (const neighbor of neighbors) {
+          if (!visitedBackward.has(neighbor)) {
+            visitedBackward.add(neighbor);
+            reachableNodes.add(neighbor);
+            queue.push(neighbor);
+          }
+        }
+      }
+    }
+
+    candidateNodes = reachableNodes;
+  } else if (!regex) {
+    candidateNodes = validNodes;
+  } else if (regex && candidateNodes.size === 0) {
+    candidateNodes = new Set();
+  }
+
+  // 3. Build final Cytoscape elements
+  Object.values(rawGraphData.nodes).forEach(n => {
+    if (candidateNodes.has(n.id)) {
+      const cfg = NODE_CONFIG[n.kind] || { shape: 'round-rectangle', color: '#94a3b8', size: 30 };
+      nodes.push({
+        data: {
+          id: n.id,
+          label: n.name || n.id.split('.').pop() || n.id,
+          kind: n.kind,
+          color: cfg.color,
+          shape: cfg.shape,
+          size: cfg.size,
+          raw: n
+        }
+      });
+      addedNodes.add(n.id);
+    }
   });
 
   // Filter edges (only between currently visible nodes)
@@ -730,7 +811,7 @@ function initEventListeners() {
   });
 
   document.getElementById('btn-reset-filters').addEventListener('click', () => {
-    setPreset('arch');
+    setPreset('call_graph');
     applyFilters();
   });
 

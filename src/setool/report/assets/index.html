@@ -110,12 +110,21 @@
         </div>
 
         <!-- View Preset Buttons -->
-        <div class="preset-pills">
-          <button class="pill active" data-preset="arch">Architecture</button>
-          <button class="pill" data-preset="modules">Modules</button>
-          <button class="pill" data-preset="pytorch">PyTorch</button>
-          <button class="pill" data-preset="all">All Details</button>
+
+        <!-- Call Graph Analysis Section -->
+        <div class="filter-section">
+          <div class="section-title">Call Graph Analysis</div>
+          <div class="analysis-controls" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <input type="text" id="regex-filter-input" placeholder="Regex filter (e.g. ^my_method$)" class="select-input" style="width: 100%; padding: 6px; box-sizing: border-box; background-color: #1e293b; color: #f8fafc; border: 1px solid #334155; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 12px;">
+            <select id="regex-direction-select" class="select-input" style="width: 100%; padding: 6px; box-sizing: border-box; background-color: #1e293b; color: #f8fafc; border: 1px solid #334155; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 12px;">
+              <option value="both" selected>Both (Ancestors & Descendants)</option>
+              <option value="forward">Forward (Descendants only)</option>
+              <option value="backward">Backward (Ancestors only)</option>
+            </select>
+            <button id="btn-apply-analysis" class="btn btn-secondary" style="width: 100%; justify-content: center;">Apply Filter</button>
+            <button id="btn-clear-analysis" class="btn btn-text" style="width: 100%; justify-content: center; font-size: 11px;">Clear Filter</button></div>
         </div>
+
 
         <!-- Node Types Filter Section -->
         <div class="filter-section">
